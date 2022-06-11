@@ -212,3 +212,12 @@ void level_read()
     digitalWrite(LED5, HIGH);
   }
 }
+
+// TEAM Electro-Power
+/* Members :-
+ *  Bhav Beri (Software)
+ *  Prisha (Software)
+ *  Vanshika Dhingra (Hardware)
+ *  Harshit Aggarwal (Hardware)
+*/
+ */
