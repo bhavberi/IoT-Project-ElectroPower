@@ -30,10 +30,14 @@ DallasTemperature waterTempObj(&oneWire);
 float tempC = 0;
 
 // ---------------------------------------------
-// WATER LEVEL SENSOR DETAILS
+// WATER LEVEL ULTRASONIC SENSOR DETAILS
+
+#define SOUND_SPEED 0.030
+
+#define TRIG_PIN 12
+#define ECHO_PIN 11
 
 #define LVL_POWER_PIN 16
-#define WATER_SENSOR_PIN 33
 #define LED1 1
 #define LED2 2
 #define LED3 3
@@ -95,6 +99,8 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, HIGH);
 
+  pinMode(TRIG_PIN,OUTPUT);
+  pinMode(ECHO_PIN,INPUT);
   pinMode(LVL_POWER_PIN, OUTPUT);
   digitalWrite(LVL_POWER_PIN, LOW);
 
@@ -108,7 +114,7 @@ void setup() {
   digitalWrite(LED4, LOW);
   pinMode(LED5, OUTPUT);
   digitalWrite(LED5, LOW);
-
+ 
   // -----------------------------------------------
   // PIR SENSOR
 
@@ -185,10 +191,17 @@ void level_read()
 {
   digitalWrite(LVL_POWER_PIN, HIGH);
   delay(5);
-  waterLevelReading = analogRead(WATER_SENSOR_PIN);
-  digitalWrite(LVL_POWER_PIN, LOW);
-  Serial.print(waterLevelReading);
 
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);  
+  
+  int duration = pulseIn(ECHO_PIN,HIGH);
+  waterLevelReading = duration * SOUND_SPEED/2;
+  
+  Serial.print(waterLevelReading);
   // Setting up LEDs Based on Water Level
 
   if (waterLevelReading >= LEVEL1)
@@ -211,6 +224,8 @@ void level_read()
   {
     digitalWrite(LED5, HIGH);
   }
+
+  digitalWrite(LVL_POWER_PIN, LOW);
 }
 
 // TEAM Electro-Power
@@ -220,4 +235,3 @@ void level_read()
  *  Vanshika Dhingra (Hardware)
  *  Harshit Aggarwal (Hardware)
 */
- */
