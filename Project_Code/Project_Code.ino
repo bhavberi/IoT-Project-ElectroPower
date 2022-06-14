@@ -18,7 +18,7 @@
 // WATER TEMPERATURE SENSOR DETAILS
 
 #define BUZZER_PIN 18
-#define WATER_TEMP_PIN 15
+#define WATER_TEMP_PIN 4
 #define MAX_WATER_TEMP 30
 #define MIN_WATER_TEMP 20
 
@@ -32,23 +32,23 @@ float tempC = 0;
 // ---------------------------------------------
 // WATER LEVEL ULTRASONIC SENSOR DETAILS
 
-#define SOUND_SPEED 0.030
+#define SOUND_SPEED 0.034
 
-#define TRIG_PIN 12
-#define ECHO_PIN 11
+#define TRIG_PIN 32
+#define ECHO_PIN 35
 
 #define LVL_POWER_PIN 16
-#define LED1 1
-#define LED2 2
-#define LED3 3
-#define LED4 4
-#define LED5 5
+#define LED1 12
+#define LED2 26
+#define LED3 14
+#define LED4 13
+#define LED5 27
 
-#define LEVEL1 100
-#define LEVEL2 500
-#define LEVEL3 1000
-#define LEVEL4 1300
-#define LEVEL5 1600
+#define LEVEL1 1
+#define LEVEL2 3
+#define LEVEL3 6
+#define LEVEL4 10
+#define LEVEL5 15
 
 int waterLevelReading = 0;
 
@@ -73,7 +73,7 @@ PubSubClient mqttClient(server, 1883, client);
 // PIR SENSOR DETAILS
 
 #define PIR_PIN 33
-#define LED_ON_TIME 10
+#define LED_ON_TIME 5
 
 int pirReading = 0;
 
@@ -118,9 +118,10 @@ void setup() {
   // -----------------------------------------------
   // PIR SENSOR
 
-  pinMode(PIR_PIN, INPUT_PULLUP);
+  pinMode(PIR_PIN,INPUT);
   // Attaching interrupt for better catching of the motion (Rising edge of input)
-  attachInterrupt(digitalPinToInterrupt(PIR_PIN), detectsMovement, RISING);
+  //pinMode(PIR_PIN, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(PIR_PIN), detectsMovement, RISING);
 
   // -----------------------------------------------
   // Beginnng/Setting up Water Temp Object
@@ -128,6 +129,7 @@ void setup() {
 
   // -----------------------------------------------
   //Setting up Wifi Connection
+  /*
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED)
@@ -141,6 +143,7 @@ void setup() {
 
   // Setting up MQTT Broker details for ThingSpeak
   mqttClient.setServer(server, 1883);
+  */
 }
 
 // -------------------------------------------------------------
@@ -151,6 +154,9 @@ void loop() {
 
   // ------------------------------------ 
   // Updating Level LEDs if motion has stopped
+
+  if(digitalRead(PIR_PIN))
+    detectsMovement();
   
   now = millis(); // Current time
   if(startTimer && (now - lastTrigger > (LED_ON_TIME*1000))) {
@@ -177,6 +183,7 @@ void water_temp_read()
 {
   waterTempObj.requestTemperatures();
   tempC = waterTempObj.getTempCByIndex(0);
+  Serial.print("Temperature: ");
   Serial.println(tempC);
   digitalWrite(BUZZER_PIN, HIGH);
   if (tempC < MIN_WATER_TEMP || tempC > MAX_WATER_TEMP)
@@ -189,6 +196,12 @@ void water_temp_read()
 // Reading Water Level Value & setting LEDs as needed
 void level_read()
 {
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  digitalWrite(LED4, LOW);
+  digitalWrite(LED5, LOW);
+  
   digitalWrite(LVL_POWER_PIN, HIGH);
   delay(5);
 
@@ -200,8 +213,9 @@ void level_read()
   
   int duration = pulseIn(ECHO_PIN,HIGH);
   waterLevelReading = duration * SOUND_SPEED/2;
-  
-  Serial.print(waterLevelReading);
+
+  Serial.print("Water Level: ");
+  Serial.println(waterLevelReading);
   // Setting up LEDs Based on Water Level
 
   if (waterLevelReading >= LEVEL1)
