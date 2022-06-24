@@ -61,8 +61,8 @@ const char *password = "";
 const char* server = "mqtt3.thingspeak.com";
 char mqttUserName[] = "bhavberi";
 char mqttPass[] = "5UKHX0B9UOS4MRAZ";
-long channelID = 0; // PUT ID
-char writeAPI[] = "0"; // PUT WRITE API
+long channelID = 1779679; // PUT ID
+char writeAPI[] = "51X915EZ4PJ001QX"; // PUT WRITE API
 
 // Setting up WiFi Client object
 WiFiClient client;
@@ -147,6 +147,20 @@ void setup() {
 // -------------------------------------------------------------
 // LOOPING PART OF MICRO-CONTROLLER
 void loop() {
+  // MQTT Client Connection Establishment
+  while(!mqttClient.connected())
+  {
+    Serial.println("Connect Loop");
+    Serial.println(mqttClient.connect("DQQsEw4bIB4DADQ1MCkUAxM","DQQsEw4bIB4DADQ1MCkUAxM","BNyDp71sBF5AjHADJ4OqIA4k"));
+    Serial.println(mqttClient.connected());
+    //mqttConnect();
+  }
+
+  Serial.println("MQTT Connected");
+  mqttClient.loop();
+
+  delay(500);
+  
   // Reading value from Water Level Sensor using waterTempObj object
   water_temp_read();
 
@@ -154,7 +168,10 @@ void loop() {
   // Updating Level LEDs if motion has stopped
 
   if(digitalRead(PIR_PIN))
+  {
     detectsMovement();
+    mqttPublish(channelID, writeAPI, tempC, waterLevelReading);
+  }
   
   now = millis(); // Current time
   if(startTimer && (now - lastTrigger > (LED_ON_TIME*1000))) {
@@ -173,6 +190,31 @@ void loop() {
   // To be Added
 
   delay(1000);
+}
+
+void mqttPublish(long pubChannelID, char* pubWriteAPIKey, int level, int temp)
+{
+  if(level < 1 || temp < -10)
+    return;
+
+  // Publishing MQTT Data
+  String dataString = "field1=" + String(temp) + "field2=" + String(level);
+  String topicString = "channels/" + String(pubChannelID) + "/publish";
+  mqttClient.publish(topicString.c_str(),dataString.c_str());
+  Serial.println(pubChannelID);
+  
+
+//  for(int i=0;i<8;++i)
+//  {
+//    if(fieldsToPublish[i])
+//    {
+//      Serial.println(dataString);
+//      String topicString = "channels/" + String(pubChannelID) + "/publish";
+//      mqttClient.publish(topicString.c_str(),dataString.c_str());
+//      Serial.println(pubChannelID);
+//      Serial.println("");
+//    }
+//  }
 }
 
 // ----------------------------------------------------------
