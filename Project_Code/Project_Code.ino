@@ -19,8 +19,8 @@
 
 #define BUZZER_PIN 18
 #define WATER_TEMP_PIN 4
-#define MAX_WATER_TEMP 30
-#define MIN_WATER_TEMP 20
+#define MAX_WATER_TEMP 26
+#define MIN_WATER_TEMP 24
 
 // Setup a oneWire instance to communicate
 OneWire oneWire(WATER_TEMP_PIN);
@@ -38,17 +38,17 @@ float tempC = 0;
 #define ECHO_PIN 35
 
 #define LVL_POWER_PIN 16
-#define LED1 12
-#define LED2 26
-#define LED3 14
-#define LED4 13
-#define LED5 27
+#define LED1 26
+#define LED2 25
+#define LED3 12
+#define LED4 33
+#define LED5 14
 
 #define LEVEL1 1
 #define LEVEL2 3
 #define LEVEL3 6
-#define LEVEL4 10
-#define LEVEL5 15
+#define LEVEL4 9
+#define LEVEL5 10
 
 int waterLevelReading = 0;
 
@@ -72,7 +72,7 @@ PubSubClient mqttClient(server, 1883, client);
 // -----------------------------------------------
 // PIR SENSOR DETAILS
 
-#define PIR_PIN 33
+#define PIR_PIN 13
 #define LED_ON_TIME 5
 
 int pirReading = 0;
@@ -129,7 +129,6 @@ void setup() {
 
   // -----------------------------------------------
   //Setting up Wifi Connection
-  /*
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED)
@@ -143,7 +142,6 @@ void setup() {
 
   // Setting up MQTT Broker details for ThingSpeak
   mqttClient.setServer(server, 1883);
-  */
 }
 
 // -------------------------------------------------------------
@@ -174,7 +172,7 @@ void loop() {
 
   // To be Added
 
-  delay(500);
+  delay(1000);
 }
 
 // ----------------------------------------------------------
@@ -213,6 +211,7 @@ void level_read()
   
   int duration = pulseIn(ECHO_PIN,HIGH);
   waterLevelReading = duration * SOUND_SPEED/2;
+  waterLevelReading = 12 - waterLevelReading;
 
   Serial.print("Water Level: ");
   Serial.println(waterLevelReading);
