@@ -66,8 +66,8 @@ int waterLevelReading = 0;
 // ----------------------------------------------
 // THINGSPEAK DETAILS
 
-const char *ssid = "";
-const char *password = "";
+const char *ssid = "V2027";
+const char *password = "HARSHIT12";
 
 const char* server = "mqtt3.thingspeak.com";
 char mqttUserName[] = "bhavberi";
@@ -82,11 +82,11 @@ PubSubClient mqttClient(server, 1883, client);
 
 // ----------------------------------------------
 // Onem2m Details
-String cse_ip = ""; // IP from ipconfig/ifconfig
+String cse_ip = "192.168.43.54"; // IP from ipconfig/ifconfig
 String cse_port = "8080";
 String onem2m_server = "http://" + cse_ip + ":" + cse_port + "/~/in-cse/in-name/";
-String ae1 = "Water Temp";
-String ae2 = "Water Level";
+String ae1 = "Water_Temp";
+String ae2 = "Water_Level";
 String cnt = "node";
 
 
@@ -171,25 +171,24 @@ void loop() {
   // MQTT Client Connection Establishment
   while (!mqttClient.connected())
   {
-    Serial.println("Connect Loop");
+    //Serial.println("Connect Loop");
     Serial.println(mqttClient.connect("DQQsEw4bIB4DADQ1MCkUAxM", "DQQsEw4bIB4DADQ1MCkUAxM", "BNyDp71sBF5AjHADJ4OqIA4k"));
     Serial.println(mqttClient.connected());
-    //mqttConnect();
   }
 
-  Serial.println("MQTT Connected");
+  //Serial.println("MQTT Connected");
   mqttClient.loop();
 
   delay(500);
-
-  // Reading value from Water Level Sensor using waterTempObj object
-  water_temp_read();
 
   // ------------------------------------
   // Updating Level LEDs if motion has stopped
 
   if (digitalRead(PIR_PIN))
   {
+    // Reading value from Water Level Sensor using waterTempObj object
+    water_temp_read();
+    
     detectsMovement();
 
     // Publishing the Data
@@ -206,6 +205,8 @@ void loop() {
     digitalWrite(LED4, LOW);
     digitalWrite(LED5, LOW);
     startTimer = false;
+
+    digitalWrite(BUZZER_PIN, HIGH);
   }
 
   delay(1000);
@@ -246,11 +247,10 @@ void mqttPublish(long pubChannelID, char* pubWriteAPIKey, int level, int temp)
     return;
 
   // Publishing MQTT Data
-  String dataString = "field1=" + String(temp) + "field2=" + String(level);
+  String dataString = "field1=" + String(temp) + "&field2=" + String(level);
   String topicString = "channels/" + String(pubChannelID) + "/publish";
-  mqttClient.publish(topicString.c_str(), dataString.c_str());
+  Serial.println(mqttClient.publish(topicString.c_str(), dataString.c_str()));
   Serial.println(pubChannelID);
-
 }
 
 // ----------------------------------------------------------
