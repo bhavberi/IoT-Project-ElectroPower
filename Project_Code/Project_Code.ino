@@ -1,3 +1,11 @@
+// TEAM Electro-Power
+/* Members :-
+    Bhav Beri (Software)
+    Harshit Aggarwal (Hardware)
+    Prisha (Hardware)
+    Vanshika Dhingra (Hardware)
+*/
+
 /*
   => Additional Board manager - https://dl.espressif.com/dl/package_esp32_index.json
   Libraries Needed to be installed -
@@ -22,8 +30,8 @@
 
 #define BUZZER_PIN 18
 #define WATER_TEMP_PIN 4
-#define MAX_WATER_TEMP 26
-#define MIN_WATER_TEMP 24
+#define MAX_WATER_TEMP 38
+#define MIN_WATER_TEMP 36
 
 // Setup a oneWire instance to communicate
 OneWire oneWire(WATER_TEMP_PIN);
@@ -49,9 +57,9 @@ float tempC = 0;
 
 #define LEVEL1 1
 #define LEVEL2 3
-#define LEVEL3 6
-#define LEVEL4 9
-#define LEVEL5 10
+#define LEVEL3 5
+#define LEVEL4 7
+#define LEVEL5 9
 
 int waterLevelReading = 0;
 
@@ -183,6 +191,8 @@ void loop() {
   if (digitalRead(PIR_PIN))
   {
     detectsMovement();
+
+    // Publishing the Data
     mqttPublish(channelID, writeAPI, tempC, waterLevelReading);
     onem2mPublish(tempC, waterLevelReading);
   }
@@ -197,11 +207,6 @@ void loop() {
     digitalWrite(LED5, LOW);
     startTimer = false;
   }
-
-  // ------------------------------------
-  // ThingSpeak Publishing the Data
-
-  // To be Added
 
   delay(1000);
 }
@@ -246,18 +251,6 @@ void mqttPublish(long pubChannelID, char* pubWriteAPIKey, int level, int temp)
   mqttClient.publish(topicString.c_str(), dataString.c_str());
   Serial.println(pubChannelID);
 
-
-  //  for(int i=0;i<8;++i)
-  //  {
-  //    if(fieldsToPublish[i])
-  //    {
-  //      Serial.println(dataString);
-  //      String topicString = "channels/" + String(pubChannelID) + "/publish";
-  //      mqttClient.publish(topicString.c_str(),dataString.c_str());
-  //      Serial.println(pubChannelID);
-  //      Serial.println("");
-  //    }
-  //  }
 }
 
 // ----------------------------------------------------------
@@ -325,11 +318,3 @@ void level_read()
 
   digitalWrite(LVL_POWER_PIN, LOW);
 }
-
-// TEAM Electro-Power
-/* Members :-
-    Bhav Beri (Software)
-    Prisha (Software)
-    Vanshika Dhingra (Hardware)
-    Harshit Aggarwal (Hardware)
-*/
