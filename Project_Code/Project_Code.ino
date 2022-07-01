@@ -1,8 +1,8 @@
-// TEAM Electro-Power
+// TEAM -> Electro-Power
 /* Members :-
     Bhav Beri (Software)
+    Prisha (Software)
     Harshit Aggarwal (Hardware)
-    Prisha (Hardware)
     Vanshika Dhingra (Hardware)
 */
 
@@ -56,10 +56,10 @@ float tempC = 0;
 #define LED5 14
 
 #define LEVEL1 1
-#define LEVEL2 3
-#define LEVEL3 5
-#define LEVEL4 7
-#define LEVEL5 9
+#define LEVEL2 4
+#define LEVEL3 6
+#define LEVEL4 8
+#define LEVEL5 10
 
 int waterLevelReading = 0;
 
@@ -219,7 +219,7 @@ void onem2mPublish(int level, int temp)
   
   HTTPClient http;
   
-  http.begin(onem2m_server + ae1 + "/" + cnt + "/");
+  http.begin(onem2m_server + ae2 + "/" + cnt + "/");
   http.addHeader("X-M2M-Origin", "admin:admin");
   http.addHeader("Content-Type", "application/json;ty=4");
   code = http.POST("{\"m2m:cin\": {\"cnf\":\"application/json\",\"con\": " + String(val) + "}}");
@@ -230,7 +230,7 @@ void onem2mPublish(int level, int temp)
   http.end();
 
   val = String(level);
-  http.begin(onem2m_server + ae2 + "/" + cnt + "/");
+  http.begin(onem2m_server + ae1 + "/" + cnt + "/");
   http.addHeader("X-M2M-Origin", "admin:admin");
   http.addHeader("Content-Type", "application/json;ty=4");
   code = http.POST("{\"m2m:cin\": {\"cnf\":\"application/json\",\"con\": " + String(val) + "}}");
@@ -243,7 +243,7 @@ void onem2mPublish(int level, int temp)
 
 void mqttPublish(long pubChannelID, char* pubWriteAPIKey, int level, int temp)
 {
-  if (level < 1 || temp < -10)
+  if (level < 1 || temp < -10 || temp >= 85)
     return;
 
   // Publishing MQTT Data
